@@ -1,0 +1,95 @@
+<%- include('../partials/header') %>
+
+<section class="page-heading">
+  <div>
+    <h1>Movimentações de estoque</h1>
+    <p>Acompanhe os saldos e os registros de entrada e saída do RU.</p>
+  </div>
+  <a class="btn btn-primary" href="/movimentacoes/nova"><span aria-hidden="true">＋</span> Registrar movimentação</a>
+</section>
+
+<% if (mensagem) { %><div class="alert alert-success" role="status"><%= mensagem %></div><% } %>
+
+<section class="catalog stock-catalog" aria-labelledby="stock-title">
+  <div class="catalog-heading">
+    <div>
+      <h2 id="stock-title">Estoque disponível</h2>
+      <p>Saldo calculado pelas entradas e saídas de cada insumo.</p>
+    </div>
+  </div>
+
+  <% if (saldos.length > 0) { %>
+    <div class="table-responsive">
+      <table class="table stock-table align-middle mb-0">
+        <thead>
+          <tr>
+            <th scope="col">Código</th>
+            <th scope="col">Insumo</th>
+            <th scope="col">Unidade</th>
+            <th scope="col" class="text-end">Quantidade disponível</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% for (const saldo of saldos) { %>
+            <tr>
+              <td class="item-code">INS-<%= String(saldo.insumoId).padStart(3, '0') %></td>
+              <td class="item-details"><strong><%= saldo.nomeInsumo %></strong></td>
+              <td><span class="unit-label"><%= saldo.unidadeMedida %></span></td>
+              <td class="text-end stock-quantity <%= saldo.quantidade === 0 ? 'zero-stock' : '' %>"><%= formatarQuantidade(saldo.quantidade) %></td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  <% } else { %>
+    <div class="empty-state">
+      <h3>Nenhum insumo cadastrado</h3>
+      <p>Cadastre um insumo para começar a movimentar o estoque.</p>
+      <a href="/insumos/novo">Cadastrar insumo</a>
+    </div>
+  <% } %>
+</section>
+
+<section class="catalog history-catalog" aria-labelledby="history-title">
+  <div class="catalog-heading">
+    <div>
+      <h2 id="history-title">Histórico de movimentações</h2>
+      <p>Registros mais recentes aparecem primeiro.</p>
+    </div>
+    <span class="count-label"><%= movimentacoes.length %> <%= movimentacoes.length === 1 ? 'registro' : 'registros' %></span>
+  </div>
+
+  <% if (movimentacoes.length > 0) { %>
+    <div class="table-responsive">
+      <table class="table history-table align-middle mb-0">
+        <thead>
+          <tr>
+            <th scope="col">Data e hora</th>
+            <th scope="col">Insumo</th>
+            <th scope="col">Tipo</th>
+            <th scope="col" class="text-end">Quantidade</th>
+            <th scope="col">Observação</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% for (const movimentacao of movimentacoes) { %>
+            <tr>
+              <td class="text-nowrap"><%= formatarData(movimentacao.data) %></td>
+              <td class="item-details"><strong><%= movimentacao.nomeInsumo %></strong></td>
+              <td><span class="movement-type <%= movimentacao.tipo.toLowerCase() %>"><%= movimentacao.tipo === 'ENTRADA' ? 'Entrada' : 'Saída' %></span></td>
+              <td class="text-end text-nowrap"><%= formatarQuantidade(movimentacao.quantidade) %> <%= movimentacao.unidadeMedida %></td>
+              <td class="history-note"><%= movimentacao.observacao || '—' %></td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  <% } else { %>
+    <div class="empty-state">
+      <h3>Nenhuma movimentação registrada</h3>
+      <p>Os recebimentos e consumos registrados aparecerão aqui.</p>
+    </div>
+  <% } %>
+</section>
+
+<%- include('../partials/footer') %>

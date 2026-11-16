@@ -1,0 +1,34 @@
+<%- include('../partials/header') %>
+
+<a class="back-link" href="/insumos">← Voltar para insumos</a>
+<section class="page-heading form-heading">
+  <div>
+    <h1>Excluir insumo</h1>
+    <p>Confira o produto antes de confirmar a exclusão.</p>
+  </div>
+</section>
+
+<div class="form-card delete-card">
+  <% if (erro) { %>
+    <div class="alert alert-danger" role="alert"><%= erro %></div>
+  <% } %>
+
+  <div class="delete-item">
+    <span class="item-code">INS-<%= String(insumo.id).padStart(3, '0') %></span>
+    <h2><%= insumo.nome %></h2>
+    <% if (insumo.descricao) { %><p><%= insumo.descricao %></p><% } %>
+    <span class="unit-label"><%= insumo.unidadeMedida %></span>
+  </div>
+  <p class="delete-note">A exclusão só é permitida quando o insumo não possui registros vinculados.</p>
+
+  <form method="post" action="/insumos/<%= insumo.id %>/excluir">
+    <div class="form-actions">
+      <a class="btn btn-light" href="/insumos">Cancelar</a>
+      <% if (!erro) { %>
+        <button class="btn btn-danger" type="submit">Confirmar exclusão</button>
+      <% } %>
+    </div>
+  </form>
+</div>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,28 @@
+{
+  "name": "gerenciador-ru",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "CRUD de insumos do Restaurante Universitário",
+  "engines": { "node": ">=22.9.0" },
+  "scripts": {
+    "dev": "node --env-file-if-exists=.env --import tsx --watch src/server.ts",
+    "build": "tsc",
+    "start": "node --env-file-if-exists=.env dist/server.js",
+    "test": "node --import tsx --test tests/*.test.ts"
+  },
+  "dependencies": {
+    "@fontsource-variable/dm-sans": "^5.2.0",
+    "bootstrap": "^5.3.8",
+    "ejs": "^3.1.10",
+    "express": "^5.1.0",
+    "mysql2": "^3.15.0"
+  },
+  "devDependencies": {
+    "@types/ejs": "^3.1.5",
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.0.0",
+    "tsx": "^4.20.0",
+    "typescript": "^5.9.0"
+  }
+}

@@ -1,0 +1,65 @@
+<%- include('../partials/header') %>
+
+<a class="back-link" href="/fornecedores">← Voltar para fornecedores</a>
+<section class="page-heading form-heading">
+  <div>
+    <h1><%= title %></h1>
+    <p><%= id ? 'Atualize os dados de contato do fornecedor.' : 'Informe os dados do fornecedor para adicioná-lo ao cadastro.' %></p>
+  </div>
+</section>
+
+<div class="form-card">
+  <%- include('../partials/form-errors') %>
+
+  <form action="<%= id ? '/fornecedores/' + id + '/editar' : '/fornecedores' %>" method="post">
+    <p class="required-note">Os campos com * são obrigatórios.</p>
+
+    <div class="mb-4">
+      <label class="form-label" for="nome">Nome do fornecedor *</label>
+      <input class="form-control <%= campos.nome ? 'is-invalid' : '' %>"
+        id="nome"
+        name="nome"
+        value="<%= valores.nome %>"
+        maxlength="120"
+        required placeholder="Ex.: Distribuidora Boa Mesa"
+        aria-invalid="<%= Boolean(campos.nome) %>"
+        aria-describedby="nome-help">
+      <div id="nome-help" class="<%= campos.nome ? 'invalid-feedback' : 'form-text' %>"><%= campos.nome || 'Até 120 caracteres.' %></div>
+    </div>
+
+    <div class="mb-4">
+      <label class="form-label" for="email">E-mail <span class="optional-label">opcional</span></label>
+      <input class="form-control <%= campos.email ? 'is-invalid' : '' %>"
+        type="email"
+        id="email"
+        name="email"
+        value="<%= valores.email %>"
+        maxlength="254"
+        placeholder="contato@fornecedor.com.br"
+        aria-invalid="<%= Boolean(campos.email) %>"
+        aria-describedby="email-help">
+      <div id="email-help" class="<%= campos.email ? 'invalid-feedback' : 'form-text' %>"><%= campos.email || 'Endereço de e-mail para contato.' %></div>
+    </div>
+
+    <div>
+      <label class="form-label" for="telefone">Telefone <span class="optional-label">opcional</span></label>
+      <input class="form-control <%= campos.telefone ? 'is-invalid' : '' %>"
+        type="tel"
+        id="telefone"
+        name="telefone"
+        value="<%= valores.telefone %>"
+        maxlength="30"
+        placeholder="(28) 3333-0000"
+        aria-invalid="<%= Boolean(campos.telefone) %>"
+        aria-describedby="telefone-help">
+      <div id="telefone-help" class="<%= campos.telefone ? 'invalid-feedback' : 'form-text' %>"><%= campos.telefone || 'Inclua o DDD, quando disponível.' %></div>
+    </div>
+
+    <div class="form-actions">
+      <a class="btn btn-light" href="/fornecedores">Cancelar</a>
+      <button class="btn btn-primary" type="submit"><%= id ? 'Salvar alterações' : 'Cadastrar fornecedor' %></button>
+    </div>
+  </form>
+</div>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,93 @@
+<%- include('../partials/header') %>
+
+<a class="back-link" href="/movimentacoes">← Voltar para movimentações</a>
+<section class="page-heading form-heading">
+  <div>
+    <h1>Registrar movimentação</h1>
+    <p>Informe o recebimento ou consumo de um insumo.</p>
+  </div>
+</section>
+
+<div class="form-card">
+  <%- include('../partials/form-errors') %>
+  <% if (erroGeral) { %><div class="alert alert-danger" role="alert"><%= erroGeral %></div><% } %>
+
+  <% if (saldos.length === 0) { %>
+    <p>Cadastre um insumo antes de registrar uma movimentação.</p>
+    <a class="btn btn-primary" href="/insumos/novo">Cadastrar insumo</a>
+  <% } else { %>
+    <form action="/movimentacoes" method="post">
+      <p class="required-note">Os campos com * são obrigatórios. Data e hora são registradas automaticamente.</p>
+
+      <div class="mb-4">
+        <label class="form-label" for="insumoId">Insumo *</label>
+        <select class="form-select <%= campos.insumoId ? 'is-invalid' : '' %>"
+          id="insumoId"
+          name="insumoId"
+          required aria-invalid="<%= Boolean(campos.insumoId) %>"
+          aria-describedby="insumo-help">
+          <option value="">Selecione um insumo</option>
+          <% for (const saldo of saldos) { %>
+            <option value="<%= saldo.insumoId %>"
+              data-saldo="<%= formatarQuantidade(saldo.quantidade) %>"
+              data-unidade="<%= saldo.unidadeMedida %>" <%= valores.insumoId === String(saldo.insumoId) ? 'selected' : '' %>>
+              <%= saldo.nomeInsumo %> · disponível <%= formatarQuantidade(saldo.quantidade) %> <%= saldo.unidadeMedida %>
+            </option>
+          <% } %>
+        </select>
+        <div id="insumo-help" class="invalid-feedback"><%= campos.insumoId || '' %></div>
+        <div class="balance-notice" id="saldo-atual" role="status">Selecione um insumo para consultar o saldo disponível.</div>
+      </div>
+
+      <div class="row g-3 mb-4">
+        <div class="col-sm-6">
+          <label class="form-label" for="tipo">Tipo de movimentação *</label>
+          <select class="form-select <%= campos.tipo ? 'is-invalid' : '' %>"
+            id="tipo"
+            name="tipo"
+            required aria-invalid="<%= Boolean(campos.tipo) %>"
+            aria-describedby="tipo-help">
+            <option value="">Selecione o tipo</option>
+            <option value="ENTRADA" <%= valores.tipo === 'ENTRADA' ? 'selected' : '' %>>Entrada · recebimento</option>
+            <option value="SAIDA" <%= valores.tipo === 'SAIDA' ? 'selected' : '' %>>Saída · consumo</option>
+          </select>
+          <div id="tipo-help" class="invalid-feedback"><%= campos.tipo || '' %></div>
+        </div>
+        <div class="col-sm-6">
+          <label class="form-label" for="quantidade">Quantidade * <span id="unidade-quantidade"></span></label>
+          <input class="form-control <%= campos.quantidade ? 'is-invalid' : '' %>"
+            id="quantidade"
+            name="quantidade"
+            value="<%= valores.quantidade %>"
+            inputmode="decimal"
+            maxlength="13"
+            required placeholder="Ex.: 10 ou 1,250"
+            aria-invalid="<%= Boolean(campos.quantidade) %>"
+            aria-describedby="quantidade-help">
+          <div id="quantidade-help" class="<%= campos.quantidade ? 'invalid-feedback' : 'form-text' %>"><%= campos.quantidade || 'Use até 3 casas decimais.' %></div>
+        </div>
+      </div>
+
+      <div>
+        <label class="form-label" for="observacao">Observação <span class="optional-label">opcional</span></label>
+        <textarea class="form-control <%= campos.observacao ? 'is-invalid' : '' %>"
+          id="observacao"
+          name="observacao"
+          rows="3"
+          maxlength="500"
+          placeholder="Ex.: Consumo no preparo do almoço"
+          aria-invalid="<%= Boolean(campos.observacao) %>"
+          aria-describedby="observacao-help"><%= valores.observacao %></textarea>
+        <div id="observacao-help" class="<%= campos.observacao ? 'invalid-feedback' : 'form-text' %>"><%= campos.observacao || 'Até 500 caracteres.' %></div>
+      </div>
+
+      <div class="form-actions">
+        <a class="btn btn-light" href="/movimentacoes">Cancelar</a>
+        <button class="btn btn-primary" type="submit">Registrar movimentação</button>
+      </div>
+    </form>
+  <% } %>
+</div>
+
+<script defer src="/assets/estoque.js"></script>
+<%- include('../partials/footer') %>

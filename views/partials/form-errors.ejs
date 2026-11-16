@@ -1,0 +1,10 @@
+<% if (Object.keys(campos).length > 0) { %>
+  <div class="alert alert-danger" role="alert">
+    <strong>Confira os campos indicados.</strong>
+    <ul class="mb-0 mt-2">
+      <% for (const [campo, mensagem] of Object.entries(campos)) { %>
+        <li><a href="#<%= campo %>"><%= mensagem %></a></li>
+      <% } %>
+    </ul>
+  </div>
+<% } %>

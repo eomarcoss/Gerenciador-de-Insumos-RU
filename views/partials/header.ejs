@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= title %> · Gerenciador RU</title>
+  <link rel="stylesheet" href="/vendor/bootstrap.min.css">
+  <link rel="stylesheet" href="/assets/app.css">
+</head>
+<body>
+  <header class="app-header">
+    <div class="container-xl header-inner">
+      <a class="brand" href="/insumos">
+        <span class="brand-mark" aria-hidden="true">RU</span>
+        <span>
+          Gerenciador de insumos
+          <small>Restaurante Universitário</small>
+        </span>
+      </a>
+      <span class="environment">
+        <span class="status-dot"></span>
+        <%= modoMemoria ? 'Teste em memória' : 'MySQL' %>
+      </span>
+    </div>
+  </header>
+
+  <div class="navigation">
+    <nav class="container-xl" aria-label="Módulos do sistema">
+      <a href="/insumos" aria-current="<%= moduloAtivo === 'insumos' ? 'page' : 'false' %>">Insumos</a>
+      <a href="/fornecedores" aria-current="<%= moduloAtivo === 'fornecedores' ? 'page' : 'false' %>">Fornecedores</a>
+      <a href="/movimentacoes" aria-current="<%= moduloAtivo === 'movimentacoes' ? 'page' : 'false' %>">Movimentações de estoque</a>
+    </nav>
+  </div>
+
+  <main class="container-xl main-content">
+    <% if (modoMemoria) { %>
+      <div class="mode-notice">
+        <strong>Modo de teste.</strong>
+        Os dados serão restaurados ao reiniciar o sistema.
+      </div>
+    <% } %>

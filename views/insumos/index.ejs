@@ -1,0 +1,81 @@
+<%- include('../partials/header') %>
+
+<section class="page-heading">
+  <div>
+    <h1>Insumos</h1>
+    <p>Gerencie os produtos utilizados no Restaurante Universitário.</p>
+  </div>
+  <a class="btn btn-primary" href="/insumos/novo"><span aria-hidden="true">＋</span> Novo insumo</a>
+</section>
+
+<% if (mensagem) { %>
+  <div class="alert alert-success" role="status"><%= mensagem %></div>
+<% } %>
+
+<section class="catalog" aria-labelledby="catalog-title">
+  <div class="catalog-heading">
+    <div>
+      <h2 id="catalog-title">Lista de insumos</h2>
+      <p>Consulte, edite ou exclua os insumos cadastrados.</p>
+    </div>
+    <span class="count-label"><%= insumos.length %> <%= insumos.length === 1 ? 'insumo' : 'insumos' %></span>
+  </div>
+
+  <form class="search-toolbar" method="get" action="/insumos" role="search">
+    <div class="search-field">
+      <label class="visually-hidden" for="search">Pesquisar por nome ou descrição</label>
+      <span class="search-icon" aria-hidden="true"></span>
+      <input class="form-control" type="search" id="search" name="q" value="<%= busca %>" maxlength="120" placeholder="Pesquisar por nome ou descrição…">
+    </div>
+    <button class="btn btn-outline-secondary" type="submit">Pesquisar</button>
+    <% if (busca) { %>
+      <a class="clear-link" href="/insumos">Limpar pesquisa</a>
+    <% } %>
+  </form>
+
+  <% if (insumos.length > 0) { %>
+    <div class="table-responsive">
+      <table class="table align-middle mb-0">
+        <thead>
+          <tr>
+            <th scope="col">Código</th>
+            <th scope="col">Insumo</th>
+            <th scope="col">Unidade de medida</th>
+            <th scope="col" class="text-end">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% for (const insumo of insumos) { %>
+            <tr>
+              <td class="item-code">INS-<%= String(insumo.id).padStart(3, '0') %></td>
+              <td class="item-details">
+                <strong><%= insumo.nome %></strong>
+                <% if (insumo.descricao) { %>
+                  <span><%= insumo.descricao %></span>
+                <% } %>
+              </td>
+              <td><span class="unit-label"><%= insumo.unidadeMedida %></span></td>
+              <td class="text-end text-nowrap">
+                <a class="action-link" href="/insumos/<%= insumo.id %>/editar" aria-label="Editar <%= insumo.nome %>">Editar</a>
+                <a class="action-link action-delete" href="/insumos/<%= insumo.id %>/excluir" aria-label="Excluir <%= insumo.nome %>">Excluir</a>
+              </td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  <% } else { %>
+    <div class="empty-state">
+      <h3><%= busca ? 'Nenhum insumo encontrado' : 'Seu catálogo está vazio' %></h3>
+      <p><%= busca ? 'Tente pesquisar por outro nome ou descrição.' : 'Cadastre o primeiro insumo para começar.' %></p>
+      <a href="<%= busca ? '/insumos' : '/insumos/novo' %>"><%= busca ? 'Ver todos os insumos' : 'Cadastrar insumo' %></a>
+    </div>
+  <% } %>
+
+  <footer class="catalog-footer">
+    <%= insumos.length %> <%= insumos.length === 1 ? 'insumo encontrado' : 'insumos encontrados' %>
+    <% if (busca) { %> para “<%= busca %>”<% } %>
+  </footer>
+</section>
+
+<%- include('../partials/footer') %>

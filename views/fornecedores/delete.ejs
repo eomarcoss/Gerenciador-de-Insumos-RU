@@ -1,0 +1,30 @@
+<%- include('../partials/header') %>
+
+<a class="back-link" href="/fornecedores">← Voltar para fornecedores</a>
+<section class="page-heading form-heading">
+  <div>
+    <h1>Excluir fornecedor</h1>
+    <p>Confira os dados antes de confirmar a exclusão.</p>
+  </div>
+</section>
+
+<div class="form-card delete-card">
+  <% if (erro) { %><div class="alert alert-danger" role="alert"><%= erro %></div><% } %>
+
+  <div class="delete-item">
+    <span class="item-code">FOR-<%= String(fornecedor.id).padStart(3, '0') %></span>
+    <h2><%= fornecedor.nome %></h2>
+    <p><%= fornecedor.email || 'E-mail não informado' %></p>
+    <p><%= fornecedor.telefone || 'Telefone não informado' %></p>
+  </div>
+  <p class="delete-note">Fornecedores com compras vinculadas têm a exclusão bloqueada.</p>
+
+  <form method="post" action="/fornecedores/<%= fornecedor.id %>/excluir">
+    <div class="form-actions">
+      <a class="btn btn-light" href="/fornecedores">Cancelar</a>
+      <% if (!erro) { %><button class="btn btn-danger" type="submit">Confirmar exclusão</button><% } %>
+    </div>
+  </form>
+</div>
+
+<%- include('../partials/footer') %>

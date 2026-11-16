@@ -1,0 +1,77 @@
+<%- include('../partials/header') %>
+
+<section class="page-heading">
+  <div>
+    <h1>Fornecedores</h1>
+    <p>Organize os contatos dos fornecedores do Restaurante Universitário.</p>
+  </div>
+  <a class="btn btn-primary" href="/fornecedores/novo"><span aria-hidden="true">＋</span> Novo fornecedor</a>
+</section>
+
+<% if (mensagem) { %>
+  <div class="alert alert-success" role="status"><%= mensagem %></div>
+<% } %>
+
+<section class="catalog" aria-labelledby="catalog-title">
+  <div class="catalog-heading">
+    <div>
+      <h2 id="catalog-title">Lista de fornecedores</h2>
+      <p>Consulte e mantenha os dados de contato atualizados.</p>
+    </div>
+    <span class="count-label"><%= fornecedores.length %> <%= fornecedores.length === 1 ? 'fornecedor' : 'fornecedores' %></span>
+  </div>
+
+  <form class="search-toolbar" method="get" action="/fornecedores" role="search">
+    <div class="search-field">
+      <label class="visually-hidden" for="search">Pesquisar por nome, e-mail ou telefone</label>
+      <span class="search-icon" aria-hidden="true"></span>
+      <input class="form-control" type="search" id="search" name="q" value="<%= busca %>" maxlength="120" placeholder="Pesquisar por nome, e-mail ou telefone…">
+    </div>
+    <button class="btn btn-outline-secondary" type="submit">Pesquisar</button>
+    <% if (busca) { %><a class="clear-link" href="/fornecedores">Limpar pesquisa</a><% } %>
+  </form>
+
+  <% if (fornecedores.length > 0) { %>
+    <div class="table-responsive">
+      <table class="table align-middle mb-0">
+        <thead>
+          <tr>
+            <th scope="col">Código</th>
+            <th scope="col">Fornecedor</th>
+            <th scope="col">Telefone</th>
+            <th scope="col" class="text-end">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% for (const fornecedor of fornecedores) { %>
+            <tr>
+              <td class="item-code">FOR-<%= String(fornecedor.id).padStart(3, '0') %></td>
+              <td class="item-details">
+                <strong><%= fornecedor.nome %></strong>
+                <span><%= fornecedor.email || 'E-mail não informado' %></span>
+              </td>
+              <td><%= fornecedor.telefone || 'Não informado' %></td>
+              <td class="text-end text-nowrap">
+                <a class="action-link" href="/fornecedores/<%= fornecedor.id %>/editar" aria-label="Editar <%= fornecedor.nome %>">Editar</a>
+                <a class="action-link action-delete" href="/fornecedores/<%= fornecedor.id %>/excluir" aria-label="Excluir <%= fornecedor.nome %>">Excluir</a>
+              </td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  <% } else { %>
+    <div class="empty-state">
+      <h3>Nenhum fornecedor encontrado</h3>
+      <p><%= busca ? 'Tente pesquisar por outro nome ou contato.' : 'Cadastre o primeiro fornecedor para começar.' %></p>
+      <a href="<%= busca ? '/fornecedores' : '/fornecedores/novo' %>"><%= busca ? 'Ver todos os fornecedores' : 'Cadastrar fornecedor' %></a>
+    </div>
+  <% } %>
+
+  <footer class="catalog-footer">
+    <%= fornecedores.length %> <%= fornecedores.length === 1 ? 'fornecedor encontrado' : 'fornecedores encontrados' %>
+    <% if (busca) { %> para “<%= busca %>”<% } %>
+  </footer>
+</section>
+
+<%- include('../partials/footer') %>
