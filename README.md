@@ -1,6 +1,6 @@
 # Gerenciador de Insumos do RU
 
-Sistema acadêmico em Node.js, TypeScript, Express, EJS e Bootstrap. As três abas estão disponíveis para conferência em memória.
+Sistema acadêmico em Node.js, TypeScript, Express, EJS e Bootstrap. As três abas podem ser usadas em memória ou com dados persistidos no MySQL.
 
 ## Executar no VS Code
 
@@ -127,11 +127,21 @@ Os testes cobrem os dois CRUDs, validação no servidor, exclusões vinculadas, 
 
 Para executar a versão compilada, use `npm start` depois de `npm run build`. Ao editar TypeScript nesse modo, compile novamente. Durante o desenvolvimento, `npm run dev` reinicia o servidor automaticamente.
 
-## Próxima etapa com MySQL
+## Executar com MySQL
 
-A aplicação está em modo de teste em memória. Depois da conferência das telas, a próxima etapa é alinhar os adaptadores ao banco do Paulo e validar a integração real.
+1. Abra a conexão local no MySQL Workbench com uma conta administradora.
+2. Execute [`sql/01-criar-banco.sql`](sql/01-criar-banco.sql) para criar o schema `gerenciador_ru` e as tabelas. Em uma instalação nova, execute [`sql/02-dados-demonstracao.sql`](sql/02-dados-demonstracao.sql) uma vez para carregar os exemplos. O resultado esperado é de 100 registros nas quatro primeiras tabelas e 200 movimentações.
+3. Crie um usuário local para a aplicação e dê acesso ao schema.
 
-O arquivo `.env.example` contém as opções de configuração para essa etapa. Os adaptadores assumem provisoriamente estes nomes SQL:
+   ```sql
+   CREATE USER 'ru_app'@'127.0.0.1' IDENTIFIED BY RANDOM PASSWORD;
+   GRANT SELECT, INSERT, UPDATE, DELETE ON gerenciador_ru.* TO 'ru_app'@'127.0.0.1';
+   ```
+
+4. Copie `.env.example` para `.env`. Defina `DB_DRIVER=mysql` e coloque a senha gerada em `DB_PASSWORD`. Mantenha o `.env` local.
+5. Reinicie o servidor Node. O terminal deve mostrar `Conectado ao MySQL.`.
+
+Os adaptadores usam estas tabelas:
 
 | Tabela | Campos utilizados |
 | --- | --- |
@@ -141,6 +151,4 @@ O arquivo `.env.example` contém as opções de configuração para essa etapa. 
 | `item_compra` | `id_insumo`, consultado para proteger a unidade de medida |
 | `compra` | Sua chave estrangeira para fornecedor deve restringir a exclusão |
 
-Os tipos de movimentação previstos são `ENTRADA` e `SAIDA`. A quantidade precisa de um campo decimal com três casas, e a data de movimentação deve ser gravada em UTC. As transações dependem de tabelas InnoDB e de chaves estrangeiras com exclusão restrita. Os nomes, tipos e limites serão conferidos com o DDL antes de ativar esse modo.
-
-O projeto técnico, o DDL/DML definitivo e os 100 registros por tabela exigidos pelo professor seguem a divisão do grupo. A base visual e os templates podem ser ajustados pela Júlya, enquanto Marcos mantém o backend e Paulo define o banco.
+O schema usa InnoDB e chaves estrangeiras com exclusão restrita. Os tipos de movimentação são `ENTRADA` e `SAIDA`. A quantidade é decimal com três casas e a data de movimentação é gravada em UTC.

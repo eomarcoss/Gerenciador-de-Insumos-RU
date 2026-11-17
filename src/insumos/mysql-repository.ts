@@ -93,7 +93,10 @@ export class MysqlInsumoRepository implements InsumoRepository {
       );
       return resultado.affectedRows > 0;
     } catch (erro) {
-      if (typeof erro === 'object' && erro !== null && 'code' in erro && erro.code === 'ER_ROW_IS_REFERENCED_2') {
+      if (
+        typeof erro === 'object' && erro !== null && 'code' in erro
+        && (erro.code === 'ER_ROW_IS_REFERENCED' || erro.code === 'ER_ROW_IS_REFERENCED_2')
+      ) {
         throw new ApplicationError('Este insumo possui registros vinculados e não pode ser excluído.', 409);
       }
 
