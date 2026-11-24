@@ -19,7 +19,7 @@
       </a>
       <span class="environment">
         <span class="status-dot"></span>
-        <%= modoMemoria ? 'Teste em memória' : 'MySQL' %>
+        MySQL
       </span>
     </div>
   </header>
@@ -33,9 +33,3 @@
   </div>
 
   <main class="container-xl main-content">
-    <% if (modoMemoria) { %>
-      <div class="mode-notice">
-        <strong>Modo de teste.</strong>
-        Os dados serão restaurados ao reiniciar o sistema.
-      </div>
-    <% } %>

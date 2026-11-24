@@ -8,8 +8,7 @@
   "scripts": {
     "dev": "node --env-file-if-exists=.env --import tsx --watch src/server.ts",
     "build": "tsc",
-    "start": "node --env-file-if-exists=.env dist/server.js",
-    "test": "node --import tsx --test tests/*.test.ts"
+    "start": "node --env-file-if-exists=.env dist/server.js"
   },
   "dependencies": {
     "@fontsource-variable/dm-sans": "^5.2.0",

@@ -1,10 +1,12 @@
 # Gerenciador de Insumos do RU
 
-Sistema acadêmico em Node.js, TypeScript, Express, EJS e Bootstrap. As três abas podem ser usadas em memória ou com dados persistidos no MySQL.
+Sistema acadêmico em Node.js, TypeScript, Express, EJS e Bootstrap. As três abas persistem seus dados no MySQL.
+
+O [manual do projeto](MANUAL.md) explica cada arquivo, acompanha um cadastro do formulário até o MySQL e inclui um roteiro para a apresentação.
 
 ## Executar no VS Code
 
-Use Node.js 22.9 ou superior. Na pasta do projeto, execute no terminal:
+Use Node.js 22.9 ou superior. Prepare o banco e o arquivo `.env` conforme a seção [Executar com MySQL](#executar-com-mysql). Na pasta do projeto, execute os comandos no terminal.
 
 ```powershell
 npm install
@@ -13,7 +15,7 @@ npm run dev
 
 Abra [http://localhost:3000](http://localhost:3000). No PowerShell, se a execução de `npm.ps1` estiver bloqueada, use `npm.cmd` no lugar de `npm`. Para encerrar o servidor, pressione `Ctrl+C`.
 
-O modo padrão é `memory`. Os dados permanecem ao atualizar o navegador e são restaurados quando o servidor reinicia. Os testes automatizados utilizam instâncias próprias e preservam os dados da aplicação aberta.
+Os dados gravados no MySQL permanecem após atualizar o navegador ou reiniciar o servidor Node.
 
 ## Telas disponíveis
 
@@ -35,10 +37,8 @@ As compras e os itens de compra ficam nos dados de demonstração para represent
 4. Tente excluir o insumo movimentado. A exclusão deve ser bloqueada mesmo quando seu saldo chegar a zero.
 5. Cadastre outro insumo, edite e exclua antes de criar vínculos.
 6. Cadastre um fornecedor, edite seus contatos e exclua.
-7. Tente excluir Distribuidora Boa Mesa ou Cerealista Vale Verde. Ambas possuem compras de demonstração e a exclusão deve ser bloqueada.
-8. Pesquise por nomes com e sem acentos e atualize a página para conferir a permanência dos dados.
-
-O exemplo inicial contém 8 insumos, 4 fornecedores, 2 compras, 2 itens de compra e 4 movimentações. Arroz branco começa com 75 kg e Feijão carioca com 50 kg. Os demais insumos começam com saldo zero.
+7. Com os dados de demonstração carregados, tente excluir `Fornecedor de demonstração 001`. Ele possui compras vinculadas e a exclusão deve ser bloqueada.
+8. Pesquise por nomes com e sem acentos e reinicie o servidor Node para conferir a permanência dos dados.
 
 ## Organização do código
 
@@ -46,26 +46,22 @@ O exemplo inicial contém 8 insumos, 4 fornecedores, 2 compras, 2 itens de compr
 src/
   app.ts                  Configura o Express, EJS, arquivos públicos e rotas
   server.ts               Inicia e encerra o servidor
-  database.ts             Seleciona o modo de armazenamento
-  repositories.ts         Reúne os contratos e cria os repositórios em memória
+  database.ts             Abre o pool MySQL e instancia os repositórios
+  repositories.ts         Reúne os contratos dos três módulos
   shared/
     errors.ts             Erros conhecidos e erros de validação
     forms.ts              Leitura de campos e identificadores
-  memory/
-    database.ts           Dados de demonstração das cinco tabelas
   insumos/
     insumo.ts             Tipos do insumo e contrato do repositório
     routes.ts             Recebe formulários e escolhe a resposta HTTP
     service.ts            Valida os dados e solicita as operações
-    memory-repository.ts  Manipula os insumos em memória
-    mysql-repository.ts   Adaptador SQL provisório
+    mysql-repository.ts   Adaptador para a tabela de insumos no MySQL
   fornecedores/           Mesma organização do módulo de insumos
   estoque/
     movimentacao.ts       Tipos das movimentações e dos saldos
     routes.ts             Listagem e formulário de movimentação
     service.ts            Valida os dados do formulário
-    memory-repository.ts  Calcula saldos e registra entradas e saídas
-    mysql-repository.ts   Adaptador SQL provisório com transações
+    mysql-repository.ts   Adaptador MySQL com transações de estoque
 views/
   partials/               Cabeçalho, rodapé e mensagens de validação
   insumos/                Listagem, formulário e confirmação de exclusão
@@ -75,28 +71,25 @@ views/
 public/
   app.css                 Estilos compartilhados
   estoque.js              Atualiza o saldo exibido ao selecionar um insumo
-tests/                    Testes das três abas por HTTP
 ```
 
 O fluxo de uma operação segue esta ordem:
 
 ```text
-Formulário HTML → Rota Express → Serviço → Repositório → Dados
+Formulário HTML → Rota Express → Serviço → Repositório SQL → MySQL
 ```
 
-A rota recebe a requisição e escolhe a página ou o redirecionamento. O serviço valida os dados. O repositório consulta ou altera o armazenamento. A interface do repositório define quais operações estão disponíveis, permitindo trocar memória por MySQL sem alterar os formulários.
+A rota recebe a requisição e escolhe a página ou o redirecionamento. O serviço valida os dados. O repositório executa `SELECT` para ler os registros ou `INSERT`, `UPDATE` e `DELETE` para gravar as alterações no MySQL.
 
-Os três repositórios em memória compartilham uma instância de `BancoEmMemoria`. Por isso, uma movimentação passa a proteger o insumo contra exclusão. O fornecedor é protegido pelas compras vinculadas.
+As chaves estrangeiras protegem contra exclusão os insumos com movimentações ou itens de compra e os fornecedores com compras vinculadas.
 
 ## Regras do estoque
 
 O saldo é a soma das entradas menos a soma das saídas. Novos insumos começam com zero. As quantidades aceitam ponto ou vírgula, até três casas decimais e o limite de 999999999,999 por registro.
 
-A conferência do saldo e a gravação da saída ficam juntas no repositório. Em memória, esse trecho executa sem `await`, garantindo a sequência das operações no processo Node. Para evitar resíduos de ponto flutuante, o cálculo converte quantidades para inteiros em milésimos.
+A conferência do saldo e a gravação da saída acontecem na mesma transação. O repositório bloqueia a linha do insumo com `SELECT ... FOR UPDATE` e compara as quantidades em milésimos antes de gravar.
 
 A unidade de medida fica protegida quando o insumo possui compras ou movimentações. Isso preserva o significado das quantidades já registradas. Nome e descrição continuam editáveis.
-
-No adaptador SQL, o registro utiliza uma transação e um bloqueio `SELECT ... FOR UPDATE` no insumo. A integração real ainda depende do esquema definitivo e de testes com MySQL.
 
 ## Conceitos para a apresentação
 
@@ -112,25 +105,22 @@ No adaptador SQL, o registro utiliza uma transação e um bloqueio `SELECT ... F
 | `422` | Indica campos inválidos no formulário |
 | `409` | Indica conflito, como estoque insuficiente ou exclusão vinculada |
 
-Uma apresentação pode começar no formulário de cadastro, seguir para `routes.ts`, mostrar a validação em `service.ts` e terminar em `memory-repository.ts`. Depois, a aba de estoque demonstra as regras de negócio.
+Uma apresentação pode começar no formulário de cadastro, seguir para `routes.ts`, mostrar a validação em `service.ts` e terminar em `mysql-repository.ts`. Depois, a aba de estoque demonstra as regras de negócio.
 
 Os imports usam a extensão `.js` porque ela será utilizada nos arquivos compilados. Durante o desenvolvimento, o `tsx` resolve os arquivos TypeScript correspondentes.
 
-## Verificações automatizadas
+## Compilar o projeto
 
 ```powershell
-npm test
 npm run build
 ```
-
-Os testes cobrem os dois CRUDs, validação no servidor, exclusões vinculadas, pesquisa, escape de HTML, entradas e saídas, saldo zero, precisão decimal e duas saídas simultâneas.
 
 Para executar a versão compilada, use `npm start` depois de `npm run build`. Ao editar TypeScript nesse modo, compile novamente. Durante o desenvolvimento, `npm run dev` reinicia o servidor automaticamente.
 
 ## Executar com MySQL
 
 1. Abra a conexão local no MySQL Workbench com uma conta administradora.
-2. Execute [`sql/01-criar-banco.sql`](sql/01-criar-banco.sql) para criar o schema `gerenciador_ru` e as tabelas. Em uma instalação nova, execute [`sql/02-dados-demonstracao.sql`](sql/02-dados-demonstracao.sql) uma vez para carregar os exemplos. O resultado esperado é de 100 registros nas quatro primeiras tabelas e 200 movimentações.
+2. Execute [`sql/01-criar-banco.sql`](sql/01-criar-banco.sql) para criar o schema `gerenciador_ru` e as tabelas. Se quiser carregar os exemplos em uma instalação nova, execute [`sql/02-dados-demonstracao.sql`](sql/02-dados-demonstracao.sql) uma vez. O resultado esperado com os exemplos é de 100 registros nas quatro primeiras tabelas e 200 movimentações.
 3. Crie um usuário local para a aplicação e dê acesso ao schema.
 
    ```sql
@@ -138,8 +128,14 @@ Para executar a versão compilada, use `npm start` depois de `npm run build`. Ao
    GRANT SELECT, INSERT, UPDATE, DELETE ON gerenciador_ru.* TO 'ru_app'@'127.0.0.1';
    ```
 
-4. Copie `.env.example` para `.env`. Defina `DB_DRIVER=mysql` e coloque a senha gerada em `DB_PASSWORD`. Mantenha o `.env` local.
-5. Reinicie o servidor Node. O terminal deve mostrar `Conectado ao MySQL.`.
+4. Copie `.env.example` para `.env` e coloque a senha gerada em `DB_PASSWORD`. Mantenha o `.env` local.
+5. Inicie o servidor Node. O terminal deve mostrar `Conectado ao MySQL.`.
+
+| Tipo de SQL | Onde aparece |
+| --- | --- |
+| DDL | [`01-criar-banco.sql`](sql/01-criar-banco.sql) cria o schema, as tabelas, as chaves e as restrições. |
+| DML | [`02-dados-demonstracao.sql`](sql/02-dados-demonstracao.sql) insere os exemplos. A aplicação usa `INSERT`, `UPDATE` e `DELETE` para alterar dados pela interface. |
+| DQL | [`03-consultas.sql`](sql/03-consultas.sql) traz consultas `SELECT` para conferir fornecedores, saldos, movimentações e compras no Workbench. A aplicação também usa `SELECT` para montar as telas. |
 
 Os adaptadores usam estas tabelas:
 

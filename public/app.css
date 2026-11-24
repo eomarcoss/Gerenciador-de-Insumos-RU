@@ -192,18 +192,6 @@ body {
   padding-bottom: 48px;
 }
 
-.mode-notice {
-  color: #76816f;
-  font-size: 11px;
-  display: flex;
-  gap: 5px;
-  flex-wrap: wrap;
-}
-
-.mode-notice strong {
-  font-weight: 600;
-}
-
 .page-heading {
   display: flex;
   align-items: center;
@@ -706,10 +694,6 @@ a:focus-visible, button:focus-visible {
 
   .form-actions {
     flex-wrap: wrap;
-  }
-
-  .mode-notice {
-    font-size: 10px;
   }
 
   .back-link {

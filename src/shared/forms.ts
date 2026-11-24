@@ -29,8 +29,3 @@ export function lerId(valor: unknown): number {
 
   return id;
 }
-
-export function normalizarTexto(texto: string): string {
-  // Assim, "feijao" também encontra "Feijão".
-  return texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
-}

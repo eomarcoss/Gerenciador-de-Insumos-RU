@@ -9,16 +9,12 @@ async function iniciarServidor() {
   }
 
   const dados = await conectarDados();
-  const app = criarApp(dados.repositorios, dados.modoMemoria);
+  const app = criarApp(dados.repositorios);
 
   const servidor = app.listen(porta, '127.0.0.1', () => {
     console.log('Gerenciador RU disponível em http://localhost:' + porta);
 
-    if (dados.modoMemoria) {
-      console.log('Modo memória: os dados duram até reiniciar o servidor.');
-    } else {
-      console.log('Conectado ao MySQL.');
-    }
+    console.log('Conectado ao MySQL.');
   });
 
   servidor.on('error', async (erro) => {

@@ -7,7 +7,7 @@ import { criarRotasInsumos } from './insumos/routes.js';
 import { criarRotasFornecedores } from './fornecedores/routes.js';
 import { criarRotasEstoque } from './estoque/routes.js';
 
-export function criarApp(repositorios: Repositorios, modoMemoria = true) {
+export function criarApp(repositorios: Repositorios) {
   const app = express();
 
   // O Express recebe os formulários. O EJS transforma os templates em HTML.
@@ -16,7 +16,6 @@ export function criarApp(repositorios: Repositorios, modoMemoria = true) {
   app.set('views', fileURLToPath(new URL('../views', import.meta.url)));
   app.use(express.urlencoded({ extended: false, limit: '10kb' }));
 
-  app.locals.modoMemoria = modoMemoria;
   app.locals.formatarQuantidade = (quantidade: number) => {
     return quantidade.toLocaleString('pt-BR', { maximumFractionDigits: 3 });
   };
